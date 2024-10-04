@@ -16,28 +16,6 @@
 일반적으로 프로젝트의 목적을 나타내는 이름을 사용합니다.
 예: user-management-service, payment-processing-api
 
-
-디렉토리 구조:
-Copyproject-name/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/
-│   │   │       └── company/
-│   │   │           └── project/
-│   │   │               ├── controllers/
-│   │   │               ├── services/
-│   │   │               ├── repositories/
-│   │   │               ├── models/
-│   │   │               └── utils/
-│   │   └── resources/
-│   └── test/
-├── docs/
-├── scripts/
-├── .gitignore
-├── README.md
-└── pom.xml or build.gradle
-
 파일 네이밍:
 
 클래스: PascalCase (예: UserController.java, PaymentService.java)

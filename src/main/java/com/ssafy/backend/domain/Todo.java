@@ -9,7 +9,6 @@ import lombok.Getter;
 public class Todo {
     @Id
     private Long id;
-    private int userId;
     private String content;
-    private boolean completed;
+    private boolean completed = false;
 }

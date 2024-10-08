@@ -1,7 +1,9 @@
 package com.ssafy.backend.dto;
 
 import com.ssafy.backend.domain.Todo;
+import lombok.Getter;
 
+@Getter
 public class TodoDto {
     private Long id;
     private String content;

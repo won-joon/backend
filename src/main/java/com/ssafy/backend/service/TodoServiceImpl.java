@@ -32,4 +32,9 @@ public class TodoServiceImpl implements TodoService{
         todo.setCompleted(true);
     }
 
+    @Override
+    public void deleteTodo(Long todoId) {
+        todoRepository.deleteById(todoId);
+    }
+
 }

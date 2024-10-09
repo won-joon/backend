@@ -7,4 +7,6 @@ public interface TodoService {
     TodosDto getTodos();
     Long addTodo(TodoRequest request);
     void updateTodo(Long todoId);
+
+    void deleteTodo(Long todoId);
 }

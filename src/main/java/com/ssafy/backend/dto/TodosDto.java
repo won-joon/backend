@@ -1,7 +1,6 @@
 package com.ssafy.backend.dto;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 

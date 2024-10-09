@@ -22,11 +22,6 @@ public class Todo {
         this.content = content;
     }
 
-    /*
-    * 정적 메서드 패턴
-    * https://url.kr/sv5279
-    * https://tecoble.techcourse.co.kr/post/2020-05-26-static-factory-method/
-    * */
     public static Todo from(TodoRequest request){
         return new Todo(request.getContent());
     }

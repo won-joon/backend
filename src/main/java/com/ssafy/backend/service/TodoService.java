@@ -6,4 +6,5 @@ import com.ssafy.backend.dto.request.TodoRequest;
 public interface TodoService {
     TodosDto getTodos();
     Long addTodo(TodoRequest request);
+    void updateTodo(Long todoId);
 }

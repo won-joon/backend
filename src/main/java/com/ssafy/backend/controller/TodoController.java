@@ -25,4 +25,10 @@ public class TodoController {
         todoService.addTodo(request);
         return ResponseEntity.ok().build();
     }
+
+    @PatchMapping("/{todoId}")
+    public ResponseEntity<Void> updateTodo(@PathVariable("todoId") Long todoId){
+        todoService.updateTodo(todoId);
+        return ResponseEntity.ok().build();
+    }
 }

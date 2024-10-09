@@ -30,4 +30,8 @@ public class Todo {
     public static Todo from(TodoRequest request){
         return new Todo(request.getContent());
     }
+
+    public void setCompleted(boolean completed){
+        this.completed = completed;
+    }
 }

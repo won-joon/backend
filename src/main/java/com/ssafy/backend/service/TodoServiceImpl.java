@@ -29,7 +29,7 @@ public class TodoServiceImpl implements TodoService{
     @Override
     public void updateTodo(Long todoId) {
         Todo todo = todoRepository.findById(todoId).orElseThrow();
-        todo.setCompleted(true);
+        todo.setCompleted(!todo.isCompleted());
     }
 
     @Override

@@ -4,10 +4,15 @@ import com.ssafy.backend.domain.Todo;
 import com.ssafy.backend.dto.TodoDto;
 import com.ssafy.backend.dto.TodosDto;
 import com.ssafy.backend.dto.request.TodoRequest;
+import com.ssafy.backend.dto.response.TodoPageResponse;
 import com.ssafy.backend.repository.TodoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -35,6 +40,15 @@ public class TodoServiceImpl implements TodoService{
     @Override
     public void deleteTodo(Long todoId) {
         todoRepository.deleteById(todoId);
+    }
+
+    @Override
+    public TodoPageResponse getTodoPage(int page, int size) {
+
+        Page<Todo> todoPage = todoRepository.findAll(PageRequest.of(page, size));
+        List<TodoDto> todoDtoList = todoPage.getContent().stream().map(TodoDto::fromEntity).toList();
+
+        return TodoPageResponse.of(page, size, todoPage.hasNext(), todoDtoList);
     }
 
 }

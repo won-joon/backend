@@ -2,6 +2,7 @@ package com.ssafy.backend.controller;
 
 import com.ssafy.backend.dto.TodosDto;
 import com.ssafy.backend.dto.request.TodoRequest;
+import com.ssafy.backend.dto.response.TodoCursorResponse;
 import com.ssafy.backend.dto.response.TodoPageResponse;
 import com.ssafy.backend.service.TodoService;
 import lombok.RequiredArgsConstructor;
@@ -38,9 +39,15 @@ public class TodoController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/paging")
+    @GetMapping("/offset")
     public ResponseEntity<TodoPageResponse> getTodoPage(@RequestParam("size") int size, @RequestParam("page") int page) {
 
         return ResponseEntity.ok(todoService.getTodoPage(page, size));
+    }
+
+    @GetMapping("/cursor")
+    public ResponseEntity<TodoCursorResponse> getTodoCursor(@RequestParam("size") int size, @RequestParam("cursorId") Long cursorId) {
+
+        return ResponseEntity.ok(todoService.getTodoCursor(cursorId, size));
     }
 }

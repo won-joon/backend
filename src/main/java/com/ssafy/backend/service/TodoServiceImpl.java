@@ -4,6 +4,7 @@ import com.ssafy.backend.domain.Todo;
 import com.ssafy.backend.dto.TodoDto;
 import com.ssafy.backend.dto.TodosDto;
 import com.ssafy.backend.dto.request.TodoRequest;
+import com.ssafy.backend.dto.response.TodoCursorResponse;
 import com.ssafy.backend.dto.response.TodoPageResponse;
 import com.ssafy.backend.repository.TodoRepository;
 import jakarta.transaction.Transactional;
@@ -49,6 +50,16 @@ public class TodoServiceImpl implements TodoService{
         List<TodoDto> todoDtoList = todoPage.getContent().stream().map(TodoDto::fromEntity).toList();
 
         return TodoPageResponse.of(page, size, todoPage.hasNext(), todoDtoList);
+    }
+
+    @Override
+    public TodoCursorResponse getTodoCursor(Long cursorId, int size) {
+        List<Todo> todoList = todoRepository.findTodosByCursor(cursorId, size);
+
+        List<TodoDto> todoDtoList = todoList.stream().map(TodoDto::fromEntity).toList();
+        Long lastId = todoList.get(todoList.size() - 1).getId();
+
+        return TodoCursorResponse.of(lastId, size, true, todoDtoList);
     }
 
 }

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-//@RequestMapping("/todos")
 public class TodoController {
 
     private final TodoService todoService;
@@ -39,13 +38,13 @@ public class TodoController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/offset")
+    @GetMapping("/paging/offset")
     public ResponseEntity<TodoPageResponse> getTodoPage(@RequestParam("size") int size, @RequestParam("page") int page) {
 
         return ResponseEntity.ok(todoService.getTodoPage(page, size));
     }
 
-    @GetMapping("/cursor")
+    @GetMapping("/paging/cursor")
     public ResponseEntity<TodoCursorResponse> getTodoCursor(@RequestParam("size") int size, @RequestParam("cursorId") Long cursorId) {
 
         return ResponseEntity.ok(todoService.getTodoCursor(cursorId, size));

@@ -49,7 +49,8 @@ public class TodoServiceImpl implements TodoService{
         Page<Todo> todoPage = todoRepository.findAll(PageRequest.of(page, size));
         List<TodoDto> todoDtoList = todoPage.getContent().stream().map(TodoDto::fromEntity).toList();
 
-        return TodoPageResponse.of(page, size, todoPage.hasNext(), todoDtoList);
+
+        return TodoPageResponse.of(page, size, todoPage.getTotalPages(), todoPage.hasNext(), todoPage.hasPrevious(), todoDtoList);
     }
 
     @Override
@@ -59,7 +60,11 @@ public class TodoServiceImpl implements TodoService{
         List<TodoDto> todoDtoList = todoList.stream().map(TodoDto::fromEntity).toList();
         Long lastId = todoList.get(todoList.size() - 1).getId();
 
-        return TodoCursorResponse.of(lastId, size, true, todoDtoList);
+        return TodoCursorResponse.of(lastId, size, hasNext(lastId), todoDtoList);
+    }
+
+    private Boolean hasNext(Long lastId){
+        return todoRepository.existsByLastId(lastId);
     }
 
 }

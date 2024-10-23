@@ -33,6 +33,8 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'org.springframework.boot:spring-boot-starter-mail:3.3.4'
 
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	// https://mvnrepository.com/artifact/net.datafaker/datafaker
 	implementation group: 'net.datafaker', name: 'datafaker', version: '2.3.1'
 

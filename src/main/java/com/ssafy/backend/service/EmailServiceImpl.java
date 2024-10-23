@@ -4,10 +4,9 @@ import com.ssafy.backend.dto.response.EmailAuthResponse;
 import com.ssafy.backend.dto.response.EmailSendResponse;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -20,6 +19,7 @@ import java.security.SecureRandom;
 public class EmailServiceImpl implements EmailService{
 
     private final JavaMailSender javaMailSender;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private String generateCode() {
         // 임시 코드 생성 로직 (6자리 랜덤 문자열)
@@ -35,9 +35,10 @@ public class EmailServiceImpl implements EmailService{
     }
 
     @Override
-    public EmailSendResponse sendEmail(String email, HttpServletRequest request) {
+    public EmailSendResponse sendEmail(String email) {
 
         String authCode = generateCode();
+        redisTemplate.opsForValue().set(email, authCode);
 
         MimeMessage message = javaMailSender.createMimeMessage();
         try {
@@ -50,19 +51,14 @@ public class EmailServiceImpl implements EmailService{
             throw new RuntimeException(e);
         }
 
-        // 인증 코드 세션 저장
-        HttpSession httpSession = request.getSession();
-        httpSession.setAttribute("authCode", authCode);
-
         return new EmailSendResponse(true);
     }
 
     @Override
-    public EmailAuthResponse checkCode(String code, HttpServletRequest request) {
-        HttpSession session = request.getSession();
+    public EmailAuthResponse checkCode(String email, String code) {
 
-        // 세션에서 인증 코드 조회
-        String storedCode = (String) session.getAttribute("authCode");
+        // redis에서 인증 코드 조회
+        String storedCode = redisTemplate.opsForValue().get(email);
 
         if(code.equals(storedCode)){
             return new EmailAuthResponse(true);

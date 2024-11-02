@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.ssafy.backend.auth.config.SocialConfig;
 import com.ssafy.backend.auth.dto.TokenDto;
 import com.ssafy.backend.auth.dto.response.MemberResponse;
+import com.ssafy.backend.exception.error.UserErrorCode;
+import com.ssafy.backend.exception.error.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +32,9 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public MemberResponse getNickname(String accessToken) {
+        // 토큰 유효성 검증
+        validateAccessToken(accessToken);
+
         return new MemberResponse(getUserInfo(accessToken));
     }
 
@@ -54,5 +60,20 @@ public class AuthServiceImpl implements AuthService{
                 .bodyToMono(JsonNode.class)
                 .map(responseNode -> responseNode.get("properties").get("nickname").asText())
                 .block();
+    }
+
+    private void validateAccessToken(String accessToken) {
+        try {
+            webClient.get()
+                    .uri(socialConfig.getTokenInfoUri())
+                    .header(HttpHeaders.AUTHORIZATION, accessToken)
+                    .retrieve()
+                    .bodyToMono(Void.class) // 응답 내용을 사용하지 않으므로 void로 설정
+                    .block();
+
+        } catch (WebClientResponseException.Unauthorized e) {
+            // 토큰이 유효하지 않음
+            throw new UserException(UserErrorCode.ACCESS_TOKEN_EXPIRED);
+        }
     }
 }

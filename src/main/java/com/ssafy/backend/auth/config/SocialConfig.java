@@ -15,4 +15,5 @@ public class SocialConfig{
     private String tokenUri;
     private String resourceUri;
     private String authorizationGrantType;
+    private String tokenInfoUri;
 }

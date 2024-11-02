@@ -5,6 +5,8 @@ import com.ssafy.backend.auth.dto.request.TokenRequest;
 import com.ssafy.backend.auth.dto.response.MemberResponse;
 import com.ssafy.backend.auth.dto.response.TokenResponse;
 import com.ssafy.backend.auth.service.AuthService;
+import com.ssafy.backend.exception.error.UserErrorCode;
+import com.ssafy.backend.exception.error.UserException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -19,7 +21,11 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/auth")
-    public ResponseEntity<TokenResponse> getToken(@RequestBody TokenRequest tokenRequest) {
+    public ResponseEntity<TokenResponse> getToken(@RequestBody(required = false) TokenRequest tokenRequest) {
+
+        if(tokenRequest == null){
+            throw new UserException(UserErrorCode.AUTH_CODE_NOT_FOUND);
+        }
 
         TokenDto tokenDto = authService.socialLogin(tokenRequest.code());
 
@@ -35,7 +41,11 @@ public class AuthController {
     }
 
     @GetMapping("/member")
-    public ResponseEntity<MemberResponse> getNickname(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<MemberResponse> getNickname(@RequestHeader(value = "Authorization", required = false) String token) {
+
+        if (token == null) {
+            throw new UserException(UserErrorCode.ACCESS_TOKEN_NOT_FOUND);
+        }
 
         return ResponseEntity.ok().body(authService.getNickname(token));
     }

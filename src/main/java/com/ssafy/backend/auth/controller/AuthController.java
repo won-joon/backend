@@ -50,4 +50,14 @@ public class AuthController {
         return ResponseEntity.ok().body(authService.getNickname(token));
     }
 
+    @GetMapping("/reissue")
+    public ResponseEntity<TokenResponse> reissueToken(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
+
+        if (refreshToken == null) {
+            throw new UserException(UserErrorCode.REFRESH_TOKEN_NOT_FOUND);
+        }
+
+        return ResponseEntity.ok().body(authService.reissueToken(refreshToken));
+    }
+
 }

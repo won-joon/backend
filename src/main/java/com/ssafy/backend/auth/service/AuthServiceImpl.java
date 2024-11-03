@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.ssafy.backend.auth.config.SocialConfig;
 import com.ssafy.backend.auth.dto.TokenDto;
 import com.ssafy.backend.auth.dto.response.MemberResponse;
+import com.ssafy.backend.auth.dto.response.TokenResponse;
 import com.ssafy.backend.exception.error.UserErrorCode;
 import com.ssafy.backend.exception.error.UserException;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,12 @@ public class AuthServiceImpl implements AuthService{
         validateAccessToken(accessToken);
 
         return new MemberResponse(getUserInfo(accessToken));
+    }
+
+    @Override
+    public TokenResponse reissueToken(String refreshToken) {
+        // 토큰 재발급
+        return new TokenResponse(reissueAccessToken(refreshToken));
     }
 
     private JsonNode getAccessToken(String authCode) {
@@ -74,6 +81,24 @@ public class AuthServiceImpl implements AuthService{
         } catch (WebClientResponseException.Unauthorized e) {
             // 토큰이 유효하지 않음
             throw new UserException(UserErrorCode.ACCESS_TOKEN_EXPIRED);
+        }
+    }
+
+    private String reissueAccessToken(String refreshToken) {
+        try{
+            return webClient.post()
+                    .uri(socialConfig.getTokenUri())  // token-uri 값 사용
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                    .body(BodyInserters.fromFormData("refresh_token", refreshToken)
+                            .with("client_id", socialConfig.getClientId())
+                            .with("grant_type", "refresh_token"))
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .map(responseNode -> responseNode.get("access_token").asText())
+                    .block();
+        } catch (WebClientResponseException.Unauthorized e) {
+            // 토큰이 유효하지 않음
+            throw new UserException(UserErrorCode.REFRESH_TOKEN_EXPIRED);
         }
     }
 }

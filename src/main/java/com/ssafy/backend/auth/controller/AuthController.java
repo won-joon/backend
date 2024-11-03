@@ -41,13 +41,13 @@ public class AuthController {
     }
 
     @GetMapping("/member")
-    public ResponseEntity<MemberResponse> getNickname(@RequestHeader(value = "Authorization", required = false) String token) {
+    public ResponseEntity<MemberResponse> getNickname(@RequestHeader(value = "Authorization", required = false) String accessToken) {
 
-        if (token == null) {
+        if (accessToken == null) {
             throw new UserException(UserErrorCode.ACCESS_TOKEN_NOT_FOUND);
         }
 
-        return ResponseEntity.ok().body(authService.getNickname(token));
+        return ResponseEntity.ok().body(authService.getNickname(accessToken));
     }
 
     @GetMapping("/reissue")
@@ -58,6 +58,25 @@ public class AuthController {
         }
 
         return ResponseEntity.ok().body(authService.reissueToken(refreshToken));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@CookieValue(value = "refreshToken", required = false) String refreshToken) {
+
+        if (refreshToken == null) {
+            throw new UserException(UserErrorCode.REFRESH_TOKEN_NOT_FOUND);
+        }
+
+        ResponseCookie expiredCookie = ResponseCookie.from("refreshToken", "")
+                .maxAge(0)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, expiredCookie.toString())
+                .build();
     }
 
 }

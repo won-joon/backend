@@ -5,12 +5,15 @@ import com.ssafy.backend.auth.config.SocialConfig;
 import com.ssafy.backend.auth.dto.TokenDto;
 import com.ssafy.backend.auth.dto.response.MemberResponse;
 import com.ssafy.backend.auth.dto.response.TokenResponse;
+import com.ssafy.backend.domain.Member;
 import com.ssafy.backend.exception.error.UserErrorCode;
 import com.ssafy.backend.exception.error.UserException;
+import com.ssafy.backend.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -21,12 +24,22 @@ public class AuthServiceImpl implements AuthService{
 
     private final WebClient webClient = WebClient.builder().build();
     private final SocialConfig socialConfig;
+    private final MemberRepository memberRepository;
 
     public TokenDto socialLogin(String code) {
         // 토큰 발급
         JsonNode node = getAccessToken(code);
         String accessToken = node.get("access_token").asText();
         String refreshToken = node.get("refresh_token").asText();
+
+        System.out.println("access : " + accessToken);
+
+        // 사용자 정보 발급
+        String nickname = getUserInfo("Bearer " + accessToken);
+
+        if(!memberRepository.existsByAccessToken(accessToken)){
+            memberRepository.save(Member.of(nickname, accessToken, refreshToken));
+        }
 
         return new TokenDto(accessToken, refreshToken);
     }
@@ -36,13 +49,25 @@ public class AuthServiceImpl implements AuthService{
         // 토큰 유효성 검증
         validateAccessToken(accessToken);
 
-        return new MemberResponse(getUserInfo(accessToken));
+        // accessToken으로 nickname 조회 및 예외 처리
+        String nickname = memberRepository.findNicknameByAccessToken(accessToken.substring(7))
+                .orElseThrow(() -> new UserException(UserErrorCode.MEMBER_NOT_FOUND));
+
+        return new MemberResponse(nickname);
     }
 
     @Override
+    @Transactional
     public TokenResponse reissueToken(String refreshToken) {
         // 토큰 재발급
-        return new TokenResponse(reissueAccessToken(refreshToken));
+        String accessToken = reissueAccessToken(refreshToken);
+
+        // refreshToken 으로 Member 조회 및 업데이트
+        Member member = memberRepository.findByRefreshToken(refreshToken);
+
+        member.setAccessToken(accessToken);
+
+        return new TokenResponse(accessToken);
     }
 
     private JsonNode getAccessToken(String authCode) {

@@ -32,8 +32,6 @@ public class AuthServiceImpl implements AuthService{
         String accessToken = node.get("access_token").asText();
         String refreshToken = node.get("refresh_token").asText();
 
-        System.out.println("access : " + accessToken);
-
         // 사용자 정보 발급
         String nickname = getUserInfo("Bearer " + accessToken);
 
